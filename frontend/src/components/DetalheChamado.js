@@ -71,11 +71,12 @@ function DetalheChamado() {
                     </select>
                 </div>
                 <div>
-                    <label>Data Prevista para Homologação</label>
+                    <label style={{ color: !chamado || status === 'Pendente' ? '#999' : 'inherit' }}>Data Prevista para Homologação</label>
                     <input
                         type="date"
                         value={previsaoEntrega}
                         onChange={(e) => setPrevisaoEntrega(e.target.value)}
+                        disabled={!chamado || status === 'Pendente'}
                     />
                 </div>
                 <button type="submit">Salvar Alterações</button>
