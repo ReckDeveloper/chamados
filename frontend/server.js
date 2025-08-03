@@ -2,6 +2,7 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const port = 3001;
@@ -20,10 +21,65 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
-// API Routes
+// === User Routes ===
+
+// Register a new user
+app.post('/api/register', (req, res) => {
+    const { name, login, password, papel } = req.body; // Papel can be optionally provided
+    if (!name || !login || !password) {
+        return res.status(400).json({ error: 'Please provide name, login, and password' });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(password, salt);
+
+    const sql = `INSERT INTO users (name, login, password, papel) VALUES (?, ?, ?, ?)`;
+    // If papel is not provided, it will use the default value from the table schema (2)
+    db.run(sql, [name, login, hashedPassword, papel], function(err) {
+        if (err) {
+            res.status(400).json({ error: 'Login already exists' });
+            return;
+        }
+        res.json({ message: 'User registered successfully', id: this.lastID });
+    });
+});
+
+// Login a user
+app.post('/api/login', (req, res) => {
+    const { login, password } = req.body;
+    const sql = `SELECT * FROM users WHERE login = ?`;
+    db.get(sql, [login], (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid credentials' });
+        }
+        const isMatch = bcrypt.compareSync(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ error: 'Invalid credentials' });
+        }
+        res.json({ message: 'Login successful', user: { id: user.id, name: user.name, login: user.login, papel: user.papel } });
+    });
+});
+
+// Get all user names
+app.get('/api/users', (req, res) => {
+    const sql = 'SELECT id, name FROM users ORDER BY name';
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ data: rows });
+    });
+});
+
+
+// === Chamado Routes ===
 
 // Get all chamados
-app.get('/post/read.php', (req, res) => {
+app.get('/api/post/read.php', (req, res) => {
     const sql = 'SELECT * FROM chamados ORDER BY created_at DESC';
     db.all(sql, [], (err, rows) => {
         if (err) {
@@ -38,7 +94,7 @@ app.get('/post/read.php', (req, res) => {
 });
 
 // Get a single chamado by ID
-app.get('/post/read_one.php', (req, res) => {
+app.get('/api/post/read_one.php', (req, res) => {
     const id = req.query.id;
     const sql = 'SELECT * FROM chamados WHERE id = ?';
     db.get(sql, [id], (err, row) => {
@@ -54,7 +110,7 @@ app.get('/post/read_one.php', (req, res) => {
 });
 
 // Create a new chamado
-app.post('/post/create.php', (req, res) => {
+app.post('/api/post/create.php', (req, res) => {
     const { titulo, setor, nome, categoria, justificativa, metrica, descricao, previsao_entrega, status } = req.body;
     const sql = `INSERT INTO chamados (titulo, setor, nome, categoria, justificativa, metrica, descricao, previsao_entrega, status)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
@@ -73,7 +129,7 @@ app.post('/post/create.php', (req, res) => {
 });
 
 // Update a chamado
-app.put('/post/update.php', (req, res) => {
+app.put('/api/post/update.php', (req, res) => {
     const { id, previsao_entrega, status } = req.body;
     const sql = `UPDATE chamados set 
                  previsao_entrega = COALESCE(?, previsao_entrega), 

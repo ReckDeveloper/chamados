@@ -7,12 +7,12 @@ function DetalheChamado() {
     const [previsaoEntrega, setPrevisaoEntrega] = useState('');
     const { id } = useParams();
     const navigate = useNavigate();
-    const api_url = 'http://localhost:3001/post/';
+    const api_url = 'http://localhost:3001';
 
     useEffect(() => {
         const fetchChamado = async () => {
             try {
-                const response = await fetch(`${api_url}read_one.php?id=${id}`);
+                const response = await fetch(`${api_url}/api/post/read_one.php?id=${id}`);
                 const result = await response.json();
                 if (result.data) {
                     setChamado(result.data);
@@ -29,7 +29,7 @@ function DetalheChamado() {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            await fetch(api_url + 'update.php', {
+            await fetch(`${api_url}/api/post/update.php`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 function Acompanhamento() {
     const [chamados, setChamados] = useState([]);
     const [error, setError] = useState(null);
-    const api_url = 'http://localhost:3001/post/';
+    const api_url = 'http://localhost:3001';
 
     useEffect(() => {
         fetchChamados();
@@ -13,7 +13,7 @@ function Acompanhamento() {
     const fetchChamados = async () => {
         setError(null); // Reset error state
         try {
-            const response = await fetch(api_url + 'read.php');
+            const response = await fetch(`${api_url}/api/post/read.php`);
             const data = await response.json();
             console.log('API Response:', data); // Log the raw API response
 

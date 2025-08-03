@@ -1,19 +1,37 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
 function NovaSolicitacao() {
+    const [users, setUsers] = useState([]);
     const [titulo, setTitulo] = useState('');
     const [setor, setSetor] = useState('');
-    const [nome, setNome] = useState('');
+    const { user } = useAuth();
+    // Initialize nome with the logged-in user's name
+    const [nome, setNome] = useState(user ? user.name : '');
     const [categoria, setCategoria] = useState('');
     const [justificativa, setJustificativa] = useState('');
     const [metrica, setMetrica] = useState('');
     const [descricao, setDescricao] = useState('');
-    const api_url = 'http://localhost:3001/post/';
+    const api_url = 'http://localhost:3001';
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch(`${api_url}/api/users`);
+                const result = await response.json();
+                if (result.data) {
+                    setUsers(result.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch users:", error);
+            }
+        };
+        fetchUsers();
+    }, [api_url]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(api_url + 'create.php', {
+            const response = await fetch(`${api_url}/api/post/create.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -24,7 +42,8 @@ function NovaSolicitacao() {
             console.log(result);
             setTitulo('');
             setSetor('');
-            setNome('');
+            // Reset nome to the logged-in user's name after submission
+            setNome(user ? user.name : '');
             setCategoria('');
             setJustificativa('');
             setMetrica('');
@@ -42,9 +61,10 @@ function NovaSolicitacao() {
                 <div>
                     <label>Seu Nome</label>
                     <select value={nome} onChange={(e) => setNome(e.target.value)} required>
-                        <option value="">Selecione...</option>
-                        <option value="Nome 1">Nome 1</option>
-                        <option value="Nome 2">Nome 2</option>
+                        <option value="">Selecione um nome...</option>
+                        {users.map(u => (
+                            <option key={u.id} value={u.name}>{u.name}</option>
+                        ))}
                     </select>
                 </div>
                 <div>
