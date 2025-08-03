@@ -23,9 +23,9 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // === User Routes ===
 
-// Register a new user
+// Register a new user (used by Admin Panel)
 app.post('/api/register', (req, res) => {
-    const { name, login, password, papel } = req.body; // Papel can be optionally provided
+    const { name, login, password, papel } = req.body;
     if (!name || !login || !password) {
         return res.status(400).json({ error: 'Please provide name, login, and password' });
     }
@@ -34,7 +34,6 @@ app.post('/api/register', (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, salt);
 
     const sql = `INSERT INTO users (name, login, password, papel) VALUES (?, ?, ?, ?)`;
-    // If papel is not provided, it will use the default value from the table schema (2)
     db.run(sql, [name, login, hashedPassword, papel], function(err) {
         if (err) {
             res.status(400).json({ error: 'Login already exists' });
@@ -52,8 +51,8 @@ app.post('/api/login', (req, res) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
-        if (!user) {
-            return res.status(400).json({ error: 'Invalid credentials' });
+        if (!user || user.status === 0) { // Check if user exists and is active
+            return res.status(400).json({ error: 'Invalid credentials or user deactivated' });
         }
         const isMatch = bcrypt.compareSync(password, user.password);
         if (!isMatch) {
@@ -63,15 +62,28 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// Get all user names
+// Get all users (for Admin Panel)
 app.get('/api/users', (req, res) => {
-    const sql = 'SELECT id, name FROM users ORDER BY name';
+    const sql = 'SELECT id, name, login, papel, status FROM users ORDER BY name';
     db.all(sql, [], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
         }
         res.json({ data: rows });
+    });
+});
+
+// Update a user (for Admin Panel)
+app.put('/api/users/:id', (req, res) => {
+    const { name, login, papel, status } = req.body;
+    const sql = `UPDATE users SET name = ?, login = ?, papel = ?, status = ? WHERE id = ?`;
+    db.run(sql, [name, login, papel, status, req.params.id], function(err) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+        res.json({ message: 'User updated successfully' });
     });
 });
 

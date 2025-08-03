@@ -40,7 +40,8 @@ async function setupDatabase() {
                 name TEXT NOT NULL,
                 login TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
-                papel INTEGER DEFAULT 2
+                papel INTEGER DEFAULT 2,
+                status INTEGER DEFAULT 1
             );
         `);
         console.log('Table "users" created or already exists.');
@@ -54,9 +55,10 @@ async function setupDatabase() {
             const salt = bcrypt.genSaltSync(10);
             const hashedPassword = bcrypt.hashSync(password, salt);
             const papel = 1; // 1 for admin, 2 for regular user
+            const status = 1; // 1 for activated, 0 for deactivated
             
-            await db.run(`INSERT INTO users (name, login, password, papel) VALUES (?, ?, ?, ?)`, [name, login, hashedPassword, papel]);
-            console.log("Created default admin user (login: admin, password: admin, papel: 1).");
+            await db.run(`INSERT INTO users (name, login, password, papel, status) VALUES (?, ?, ?, ?, ?)`, [name, login, hashedPassword, papel, status]);
+            console.log("Created default admin user (login: admin, password: admin, papel: 1, status: 1).");
         }
 
         // Close the database

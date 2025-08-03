@@ -10,6 +10,7 @@ import LoginPage from './components/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminPanel from './components/AdminPanel';
 import AdminRoute from './components/AdminRoute';
+import EditUser from './components/EditUser';
 
 function App() {
     const { user, logout } = useAuth();
@@ -54,6 +55,14 @@ function App() {
                             element={
                                 <AdminRoute>
                                     <AdminPanel />
+                                </AdminRoute>
+                            } 
+                        />
+                        <Route 
+                            path="/admin/edit-user/:id" 
+                            element={
+                                <AdminRoute>
+                                    <EditUser />
                                 </AdminRoute>
                             } 
                         />

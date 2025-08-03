@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import UserList from './UserList';
 
 function AdminPanel() {
     const [name, setName] = useState('');
@@ -64,6 +65,8 @@ function AdminPanel() {
                 {success && <p style={{ color: 'green' }}>{success}</p>}
                 <button type="submit">Create User</button>
             </form>
+            <hr style={{ margin: '20px 0' }} />
+            <UserList />
         </div>
     );
 }
