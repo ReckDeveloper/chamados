@@ -27,22 +27,92 @@ A aplicação é composta por duas partes principais:
 
 O banco de dados utilizado é o **SQLite**, e o arquivo do banco de dados (`database.sqlite`) está localizado no diretório `api/`.
 
-## Como Executar a Aplicação
+## Configuração do Ambiente de Desenvolvimento
 
-1.  **Navegue até o diretório `frontend`:**
+Siga estes passos para rodar a aplicação em um ambiente de desenvolvimento local.
+
+1.  **Pré-requisitos:**
+    *   Tenha o [Node.js](https://nodejs.org/) (versão LTS) instalado.
+
+2.  **Navegue até o diretório `frontend`:**
     ```bash
     cd frontend
     ```
-2.  **Instale as dependências:**
+3.  **Instale as Dependências:**
+    *   Este comando instalará todas as bibliotecas necessárias para o frontend e o backend.
     ```bash
     npm install
     ```
-3.  **Inicie a aplicação (frontend e backend simultaneamente):**
+4.  **Inicialize o Banco de Dados:**
+    *   Este comando criará o arquivo de banco de dados SQLite e as tabelas necessárias. Ele também criará um usuário `admin` padrão.
+    ```bash
+    npm run db:init
+    ```
+5.  **Inicie a Aplicação:**
+    *   Este comando iniciará o servidor de backend (com `nodemon`) e o servidor de desenvolvimento do React simultaneamente.
     ```bash
     npm run dev
     ```
-- O servidor de backend será iniciado em `http://localhost:3001`.
-- A aplicação React será aberta em `http://localhost:3002` (ou em outra porta, se a 3002 estiver ocupada).
+- O servidor de backend (API) estará rodando em `http://localhost:3001`.
+- A aplicação React (UI) estará acessível em `http://localhost:3002`.
+
+---
+
+## Deploy (Implantação) em Windows 10
+
+Este guia descreve como implantar a aplicação em uma máquina Windows 10 para produção.
+
+### Parte 1: Instalar as Ferramentas Necessárias
+
+1.  **Instale o Node.js:**
+    *   Vá para o site oficial do [Node.js](https://nodejs.org/).
+    *   Baixe a versão "LTS" (Long-Term Support).
+    *   Execute o instalador, aceitando todas as opções padrão.
+
+### Parte 2: Preparar a Aplicação
+
+1.  **Copie os Arquivos do Projeto:**
+    *   Coloque a pasta inteira do projeto na máquina Windows 10.
+
+2.  **Instale as Dependências:**
+    *   Abra o **Prompt de Comando** (`cmd`).
+    *   Navegue até a pasta `frontend` do projeto (ex: `cd C:\caminho\para\o\projeto\frontend`).
+    *   Execute o comando: `npm install`.
+
+3.  **Crie a "Build" de Produção:**
+    *   Este passo cria uma versão otimizada do frontend.
+    *   No mesmo Prompt de Comando, execute: `npm run build`.
+    *   Isso criará uma nova pasta `build` dentro do diretório `frontend`.
+
+### Parte 3: Executar a Aplicação Permanentemente com `pm2`
+
+`pm2` é um gerenciador de processos que manterá sua aplicação rodando 24/7.
+
+1.  **Instale o `pm2`:**
+    *   No Prompt de Comando, execute: `npm install pm2 -g`.
+
+2.  **Inicie o Servidor de Backend (API):**
+    *   Certifique-se de que você está no diretório `frontend`.
+    *   Execute: `pm2 start server.js --name chamados-api`.
+
+3.  **Sirva o Frontend (UI):**
+    *   O frontend é servido a partir da pasta `build`. A maneira mais fácil é usar o pacote `serve`.
+    *   **Instale o `serve`:** `npm install -g serve`.
+    *   **Inicie o servidor do frontend:** `pm2 start "serve -s build -l 3002" --name chamados-ui`. (Usando a porta 3002 para corresponder à configuração de desenvolvimento).
+
+4.  **Configure o `pm2` para Iniciar com o Windows:**
+    *   Para garantir que sua aplicação reinicie junto com o computador, execute os seguintes comandos:
+        1.  `pm2 startup`
+        2.  `pm2 save`
+
+### Concluído!
+
+Sua aplicação agora está implantada e rodando.
+-   A **API** está rodando e sendo gerenciada pelo `pm2`.
+-   A **Interface do Usuário** está sendo servida a partir da pasta `build` na porta 3002, também gerenciada pelo `pm2`.
+-   Os usuários podem acessar a aplicação em `http://localhost:3002`.
+
+---
 
 ## Nota Sobre o Backend PHP Original
 
@@ -84,3 +154,59 @@ O principal problema era que a extensão **`pdo_sqlite`** do PHP não estava hab
 ---
 
 Como a alteração no ambiente original não era possível, a solução mais robusta foi migrar o backend para Node.js, que é autocontido e não depende da configuração do PHP do sistema.
+
+---
+
+## Deploy (Implantação) em Windows 10
+
+Este guia descreve como implantar a aplicação em uma máquina Windows 10 para produção.
+
+### Parte 1: Instalar as Ferramentas Necessárias
+
+1.  **Instale o Node.js:**
+    *   Vá para o site oficial do [Node.js](https://nodejs.org/).
+    *   Baixe a versão "LTS" (Long-Term Support).
+    *   Execute o instalador, aceitando todas as opções padrão.
+
+### Parte 2: Preparar a Aplicação
+
+1.  **Copie os Arquivos do Projeto:**
+    *   Coloque a pasta inteira do projeto na máquina Windows 10.
+
+2.  **Instale as Dependências:**
+    *   Abra o **Prompt de Comando** (`cmd`).
+    *   Navegue até a pasta `frontend` do projeto (ex: `cd C:\caminho\para\o\projeto\frontend`).
+    *   Execute o comando: `npm install`.
+
+3.  **Crie a "Build" de Produção:**
+    *   Este passo cria uma versão otimizada do frontend.
+    *   No mesmo Prompt de Comando, execute: `npm run build`.
+    *   Isso criará uma nova pasta `build` dentro do diretório `frontend`.
+
+### Parte 3: Executar a Aplicação Permanentemente com `pm2`
+
+`pm2` é um gerenciador de processos que manterá sua aplicação rodando 24/7.
+
+1.  **Instale o `pm2`:**
+    *   No Prompt de Comando, execute: `npm install pm2 -g`.
+
+2.  **Inicie o Servidor de Backend (API):**
+    *   Certifique-se de que você está no diretório `frontend`.
+    *   Execute: `pm2 start server.js --name chamados-api`.
+
+3.  **Sirva o Frontend (UI):**
+    *   O frontend é servido a partir da pasta `build`. A maneira mais fácil é usar o pacote `serve`.
+    *   **Instale o `serve`:** `npm install -g serve`.
+    *   **Inicie o servidor do frontend:** `pm2 start "serve -s build -l 3002" --name chamados-ui`. (Usando a porta 3002 para corresponder à configuração de desenvolvimento).
+
+4.  **Configure o `pm2` para Iniciar com o Windows:**
+    *   Para garantir que sua aplicação reinicie junto com o computador, execute os seguintes comandos:
+        1.  `pm2 startup`
+        2.  `pm2 save`
+
+### Concluído!
+
+Sua aplicação agora está implantada e rodando.
+-   A **API** está rodando e sendo gerenciada pelo `pm2`.
+-   A **Interface do Usuário** está sendo servida a partir da pasta `build` na porta 3002, também gerenciada pelo `pm2`.
+-   Os usuários podem acessar a aplicação em `http://localhost:3002`.
