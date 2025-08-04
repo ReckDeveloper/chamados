@@ -1,33 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
-function UserList() {
-    const [users, setUsers] = useState([]);
-    const [error, setError] = useState('');
-    const api_url = 'http://localhost:3001';
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const fetchUsers = async () => {
-        try {
-            const response = await fetch(`${api_url}/api/users`);
-            const data = await response.json();
-            if (response.ok) {
-                setUsers(data.data);
-            } else {
-                throw new Error(data.error || 'Failed to fetch users');
-            }
-        } catch (err) {
-            setError(err.message);
-        }
-    };
-
+function UserList({ users }) {
     return (
         <div className="posts-container">
             <h2>User Management</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
             <table>
                 <thead>
                     <tr>
@@ -39,7 +16,7 @@ function UserList() {
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map((user) => (
+                    {users && users.map((user) => (
                         <tr key={user.id}>
                             <td>{user.name}</td>
                             <td>{user.login}</td>

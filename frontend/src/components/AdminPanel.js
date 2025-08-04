@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UserList from './UserList';
 
 function AdminPanel() {
+    const [users, setUsers] = useState([]);
     const [name, setName] = useState('');
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
@@ -9,6 +10,24 @@ function AdminPanel() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const api_url = 'http://localhost:3001';
+
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch(`${api_url}/api/users`);
+            const data = await response.json();
+            if (response.ok) {
+                setUsers(data.data);
+            } else {
+                throw new Error(data.error || 'Failed to fetch users');
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -33,6 +52,7 @@ function AdminPanel() {
             setLogin('');
             setPassword('');
             setPapel(2);
+            fetchUsers(); // Re-fetch the user list
         } catch (err) {
             setError(err.message);
         }
@@ -66,7 +86,7 @@ function AdminPanel() {
                 <button type="submit">Create User</button>
             </form>
             <hr style={{ margin: '20px 0' }} />
-            <UserList />
+            <UserList users={users} />
         </div>
     );
 }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 function NovaSolicitacao() {
-    const [users, setUsers] = useState([]);
     const [titulo, setTitulo] = useState('');
     const [setor, setSetor] = useState('');
     const { user } = useAuth();
@@ -12,21 +11,6 @@ function NovaSolicitacao() {
     const [metrica, setMetrica] = useState('');
     const [descricao, setDescricao] = useState('');
     const api_url = 'http://localhost:3001';
-
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await fetch(`${api_url}/api/users`);
-                const result = await response.json();
-                if (result.data) {
-                    setUsers(result.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch users:", error);
-            }
-        };
-        fetchUsers();
-    }, [api_url]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -60,12 +44,12 @@ function NovaSolicitacao() {
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Seu Nome</label>
-                    <select value={nome} onChange={(e) => setNome(e.target.value)} required>
-                        <option value="">Selecione um nome...</option>
-                        {users.map(u => (
-                            <option key={u.id} value={u.name}>{u.name}</option>
-                        ))}
-                    </select>
+                    <input
+                        type="text"
+                        value={nome}
+                        readOnly
+                        style={{ background: '#eee' }}
+                    />
                 </div>
                 <div>
                     <label>Seu Setor</label>
