@@ -26,15 +26,27 @@ function DetalheChamado() {
         fetchChamado();
     }, [id]);
 
+    useEffect(() => {
+        if (status === 'Em análise' || status === 'Pendente') {
+            setPrevisaoEntrega('');
+        }
+    }, [status]);
+
+    const handleStatusChange = (e) => {
+        const newStatus = e.target.value;
+        setStatus(newStatus);
+    };
+
     const handleUpdate = async (e) => {
         e.preventDefault();
+        const finalPrevisaoEntrega = status === 'Em análise' || status === 'Pendente' ? '' : previsaoEntrega;
         try {
             await fetch(`${api_url}/api/post/update.php`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ id, previsao_entrega: previsaoEntrega, status }),
+                body: JSON.stringify({ id, previsao_entrega: finalPrevisaoEntrega, status }),
             });
             alert('Chamado atualizado com sucesso!');
             navigate('/acompanhamento');
@@ -61,7 +73,7 @@ function DetalheChamado() {
             <form onSubmit={handleUpdate}>
                 <div>
                     <label>Status</label>
-                    <select value={status} onChange={(e) => setStatus(e.target.value)} required>
+                    <select value={status} onChange={handleStatusChange} required>
                         <option value="Pendente">Pendente</option>
                         <option value="Em análise">Em análise</option>
                         <option value="Em desenvolvimento">Em desenvolvimento</option>
@@ -71,7 +83,7 @@ function DetalheChamado() {
                     </select>
                 </div>
                 <div>
-                    <label style={{ color: !chamado || status === 'Pendente' ? '#999' : 'inherit' }}>Data Prevista para Homologação</label>
+                    <label style={{ color: !chamado || status === 'Pendente' || status === 'Em análise' ? '#999' : 'inherit' }}>Data Prevista para Homologação</label>
                     <input
                         type="date"
                         value={previsaoEntrega}
